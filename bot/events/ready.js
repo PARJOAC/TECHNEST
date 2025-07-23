@@ -3,7 +3,6 @@ const {
   Events,
   AttachmentBuilder,
 } = require("discord.js");
-const Recordatorio = require("../../mongoDB/recordatorios");
 const Ofertas = require("../../mongoDB/ofertas");
 const Huelgas = require("../../mongoDB/huelgas");
 const {

@@ -1,20 +1,19 @@
 const { EmbedBuilder } = require('discord.js');
-const spamMap = new Map();
 
-const SPAM_LIMIT = 5;
+const SPAM_LIMIT = 4;
 const TIME_WINDOW = 15 * 1000;
-const LOG_CHANNEL_ID = '1280878268119253106';
+const LOG_CHANNEL_ID = process.env.LOG_ANTI_SPAM_CHANNEL_ID;
 
 function getMessageSignature(message) {
     let parts = [];
 
-    if (message.content.trim()) {
+    if (message.content?.trim()) {
         parts.push(message.content.trim());
     }
 
     if (message.attachments.size > 0) {
         for (const [, attach] of message.attachments) {
-            parts.push(attach.url);
+            parts.push(`file:${attach.name}`);
         }
     }
 
@@ -24,14 +23,16 @@ function getMessageSignature(message) {
         }
     }
 
-    return parts.join('|').slice(0, 300);
+    const signature = parts.join('|').slice(0, 300);
+    return signature;
 }
 
-module.exports = async function handleAntiSpam(message) {
+module.exports = async function handlerAntiSpam(message, spamMap) {
     if (!message.guild || message.author.bot) return;
 
     const userId = message.author.id;
     const signature = getMessageSignature(message);
+
     if (!signature || signature.length < 5) return;
 
     const now = Date.now();
@@ -46,15 +47,17 @@ module.exports = async function handleAntiSpam(message) {
     }
 
     const prev = data.counts.get(message.channel.id) || 0;
-    data.counts.set(message.channel.id, prev + 1);
+    const newCount = prev + 1;
+    data.counts.set(message.channel.id, newCount);
     spamMap.set(key, data);
 
-    const repeatsInThisChannel = data.counts.get(message.channel.id);
+    const repeatsInThisChannel = newCount;
     const distinctChannels = data.counts.size;
 
     if (repeatsInThisChannel >= SPAM_LIMIT || distinctChannels >= SPAM_LIMIT) {
         try {
             const logChannel = message.guild.channels.cache.get(LOG_CHANNEL_ID);
+
             if (logChannel?.isTextBased()) {
                 const embed = new EmbedBuilder()
                     .setTitle('🚨 Usuario baneado por SPAM')
@@ -66,7 +69,7 @@ module.exports = async function handleAntiSpam(message) {
                     )
                     .setTimestamp();
 
-                logChannel.send({ embeds: [embed] });
+                await logChannel.send({ embeds: [embed] });
             }
 
             await message.guild.members.ban(userId, {
