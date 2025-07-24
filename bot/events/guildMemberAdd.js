@@ -1,10 +1,11 @@
 const { Events, EmbedBuilder } = require('discord.js');
+const config = require("../../initMain/config.json");
 module.exports = {
     name: Events.GuildMemberAdd,
     once: false,
     async execute(member, client) {
-        const guild = await client.guilds.cache.get(process.env.GUILD_ID);
-        const channel = await client.channels.cache.get(process.env.BIENVENIDA_CANAL);
+        const guild = await client.guilds.cache.get(config.guildId);
+        const channel = await client.channels.cache.get(config.bienvenidaCanal);
 
         const embedBienvenida = new EmbedBuilder()
             .setColor("#fe81fe")
