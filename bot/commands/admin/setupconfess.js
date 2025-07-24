@@ -48,7 +48,7 @@ module.exports = {
 
     if (confessStatus !== null) updateFields.confessStatus = confessStatus;
     if (dmStatus !== null) updateFields.dmStatus = dmStatus;
-    if (channelConfess) updateFields.channelConfess = channelConfess.id;
+    if (channelConfess !== null) updateFields.channelConfess = channelConfess.id;
 
     if (Object.keys(updateFields).length === 0)
       return errorEmbed(
@@ -66,8 +66,8 @@ module.exports = {
     return greenEmbed(interaction, client, {
       type: MessageType.EditReply,
       title: "Configuración de confesiones actualizada",
-      description: `El sistema de confesiones ha sido ${confessStatus ? "activado" : "desactivado"}.\n` +
-        `DM a autores: ${dmStatus ? "Activado" : "Desactivado"}\n` +
+      description: `El sistema de confesiones ha sido **${confessStatus ? "activado" : "desactivado"}**.\n` +
+        `DM a autores: **${dmStatus ? "Activado" : "Desactivado"}**\n` +
         `Canal de confesiones: ${channelConfess ? `<#${channelConfess.id}>` : "No especificado"}`,
     });
   },

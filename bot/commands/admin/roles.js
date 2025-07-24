@@ -4,9 +4,10 @@ const { Category } = require("../../../enums/category");
 const { MessageType } = require("../../../enums/messageType");
 const { buildCommand } = require("../../functions/createSlashCommand");
 const { createButton } = require("../../functions/createButton");
+const { CommandPermission } = require("../../../enums/buildCommand.js");
 
 module.exports = {
-  data: buildCommand("roles", "Enviar mensaje de autoroles."),
+  data: buildCommand("roles", "Enviar mensaje de autoroles.", { CommandPermission: CommandPermission.Administrator }),
   category: Category.Assist,
   commandId: "1295292737184333864",
   async execute(interaction, client) {

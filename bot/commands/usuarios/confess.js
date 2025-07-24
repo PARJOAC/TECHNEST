@@ -44,7 +44,7 @@ module.exports = {
         interaction,
         client,
         "⚠️ El canal de confesión no está configurado o el estado es deshabilitado.",
-        MessageType.EditReply
+        MessageType.FollowUp
       );
 
     if (message.length > 2048)
@@ -52,7 +52,7 @@ module.exports = {
         interaction,
         client,
         "Tu confesión es demasiado larga. Máximo permitido: 2048 caracteres.",
-        MessageType.EditReply
+        MessageType.FollowUp
       );
 
     const channel = interaction.guild.channels.cache.get(confessionData.channel);
@@ -61,7 +61,7 @@ module.exports = {
         interaction,
         client,
         "⚠️ No se pudo encontrar el canal de confesión.",
-        MessageType.EditReply
+        MessageType.FollowUp
       );
 
     const newId = (parseInt(confessionData.last) + 1).toString();
