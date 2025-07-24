@@ -1,2 +1,8 @@
 [
+  {
+    "type": "unhandledRejection",
+    "timestamp": "24/7/2025, 18:15:32",
+    "message": "Cannot find module '../../mongoDB/confession'\nRequire stack:\n- C:\\Users\\pablo\\OneDrive\\Documentos\\TECHNEST\\bot\\events\\interactionCreate.js\n- C:\\Users\\pablo\\OneDrive\\Documentos\\TECHNEST\\initMain\\handlerEvents.js\n- C:\\Users\\pablo\\OneDrive\\Documentos\\TECHNEST\\index.js",
+    "stack": "Error: Cannot find module '../../mongoDB/confession'\nRequire stack:\n- C:\\Users\\pablo\\OneDrive\\Documentos\\TECHNEST\\bot\\events\\interactionCreate.js\n- C:\\Users\\pablo\\OneDrive\\Documentos\\TECHNEST\\initMain\\handlerEvents.js\n- C:\\Users\\pablo\\OneDrive\\Documentos\\TECHNEST\\index.js\n    at Function._resolveFilename (node:internal/modules/cjs/loader:1225:15)\n    at Function._load (node:internal/modules/cjs/loader:1055:27)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:220:24)\n    at Module.require (node:internal/modules/cjs/loader:1311:12)\n    at require (node:internal/modules/helpers:136:16)\n    at Object.<anonymous> (C:\\Users\\pablo\\OneDrive\\Documentos\\TECHNEST\\bot\\events\\interactionCreate.js:15:19)\n    at Module._compile (node:internal/modules/cjs/loader:1554:14)\n    at Object..js (node:internal/modules/cjs/loader:1706:10)\n    at Module.load (node:internal/modules/cjs/loader:1289:32)"
+  }
 ]

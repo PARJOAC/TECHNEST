@@ -1,8 +1,8 @@
 const Category = {
   Admin: "admin",
-  Assist: "assist",
+  Assist: "asistencia",
   General: "general",
-  Users: "users",
+  Users: "usuarios",
 };
 
 module.exports = { Category };

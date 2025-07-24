@@ -1,5 +1,18 @@
-const { Events } = require("discord.js");
-
+const {
+  Events,
+  ModalBuilder,
+  TextInputBuilder,
+  TextInputStyle,
+  ActionRowBuilder,
+  EmbedBuilder,
+  MessageFlags,
+  ButtonBuilder,
+  ButtonStyle,
+} = require("discord.js");
+const { errorEmbed } = require("../functions/defaultEmbed");
+const { MessageType } = require("../../enums/messageType");
+const { loadRequiredData } = require("../functions/getRequiredDatabase");
+const Confesion = require("../../mongoDB/Confesion");
 const buttonsRoles = {
   SMR: "1107572341644480562",
   TELECO: "1107572397588107294",
@@ -44,61 +57,272 @@ module.exports = {
   once: false,
   async execute(interaction, client) {
 
+    if (!interaction) return;
+    if (!interaction.guild)
+      return errorEmbed(client, interaction, "Este comando solo se puede usar en un servidor.", MessageType.Reply);
+
     if (interaction.isButton()) {
-      const rolId = buttonsRoles[interaction.customId];
+      if (buttonsRoles.hasOwnProperty(interaction.customId)) {
+        const rolId = buttonsRoles[interaction.customId];
 
-      if (rolId) {
-        const rol = interaction.guild.roles.cache.get(rolId);
+        if (rolId) {
+          const rol = interaction.guild.roles.cache.get(rolId);
 
-        if (!rol) {
-          return interaction.reply({
-            content: "No se encontró el rol correspondiente.",
-            ephemeral: true,
-          });
-        }
+          if (!rol) {
+            return interaction.reply({
+              content: "No se encontró el rol correspondiente.",
+              ephemeral: true,
+            });
+          }
 
-        if (interaction.member.roles.cache.has(rol.id)) {
-          await interaction.member.roles.remove(rol.id);
-          await interaction.reply({
-            content: `¡Se te ha eliminado el rol <@&${rol.id}>!`,
-            ephemeral: true,
-          });
+          if (interaction.member.roles.cache.has(rol.id)) {
+            await interaction.member.roles.remove(rol.id);
+            await interaction.reply({
+              content: `¡Se te ha eliminado el rol <@&${rol.id}>!`,
+              ephemeral: true,
+            });
+          } else {
+            await interaction.member.roles.add(rol.id);
+            await interaction.reply({
+              content: `¡Rol <@&${rol.id}> asignado con éxito!`,
+              ephemeral: true,
+            });
+          }
         } else {
-          await interaction.member.roles.add(rol.id);
           await interaction.reply({
-            content: `¡Rol <@&${rol.id}> asignado con éxito!`,
+            content: "El botón no está configurado correctamente.",
             ephemeral: true,
           });
         }
-      } else {
-        await interaction.reply({
-          content: "El botón no está configurado correctamente.",
-          ephemeral: true,
+      }
+      const [tipo, id] = interaction.customId.split("_");
+
+      if (["anonymous", "reply"].includes(tipo) && id) {
+        const modal = new ModalBuilder()
+          .setCustomId(`${tipo}modal_${id}`)
+          .setTitle(
+            tipo === "anonymous"
+              ? "Responder Anónimamente"
+              : "Responder a la Confesión"
+          );
+
+        const input = new TextInputBuilder()
+          .setCustomId("replyconfess")
+          .setLabel("Escribe tu respuesta aquí:")
+          .setStyle(TextInputStyle.Paragraph)
+          .setRequired(true);
+
+        modal.addComponents(new ActionRowBuilder().addComponents(input));
+        return interaction.showModal(modal);
+      }
+      return;
+    }
+
+    if (interaction.isModalSubmit()) {
+      const [tipoModal, id] = interaction.customId.split("_");
+      const esAnonimo = tipoModal.includes("anonymous");
+      const respuesta = interaction.fields.getTextInputValue("replyconfess");
+      const guildId = interaction.guild.id;
+      const userId = interaction.user.id;
+
+      let confessionDoc = await Confesion.findOne({ guildId });
+      if (!confessionDoc) {
+        confessionDoc = await Confesion.create({
+          guildId,
+          last: 0,
+          users: [],
         });
       }
+
+      const newAnswerId = (parseInt(confessionDoc.last) + 1).toString();
+      confessionDoc.last = newAnswerId;
+
+      let confesionOriginal = null;
+      let autorConfesionId = null;
+      for (const user of confessionDoc.users) {
+        const found = user.confessions.find((c) => c.id === id);
+        if (found) {
+          confesionOriginal = found;
+          autorConfesionId = user.authorId;
+          break;
+        }
+      }
+
+      if (!confesionOriginal) {
+        return interaction.reply({
+          content: "No se encontró la confesión original.",
+          flags: MessageFlags.Ephemeral,
+        });
+      }
+
+      const channel = interaction.guild.channels.cache.get(
+        confessionDoc.channel
+      );
+      if (!channel) {
+        return interaction.reply({
+          content: "El canal de confesiones no está configurado correctamente.",
+          flags: MessageFlags.Ephemeral,
+        });
+      }
+
+      let mensajeOriginal = null;
+      try {
+        if (confesionOriginal.messageId) {
+          mensajeOriginal = await channel.messages.fetch(
+            confesionOriginal.messageId
+          );
+        }
+      } catch (err) {
+        mensajeOriginal = null;
+      }
+
+      const embed = new EmbedBuilder()
+        .setTitle(`💬 Respuesta #${newAnswerId}`)
+        .setDescription(respuesta)
+        .setColor(0xadd8e6)
+        .setTimestamp();
+
+      if (esAnonimo) {
+        embed.setFooter({
+          text: "Respuesta anónima",
+        });
+      } else {
+        embed.setFooter({
+          text: `Respondido por ${interaction.user.tag}`,
+        });
+        embed.setAuthor({
+          name: interaction.user.username,
+          iconURL: interaction.user.displayAvatarURL(),
+        });
+      }
+
+      let mensajeRespuesta;
+      if (mensajeOriginal) {
+        mensajeRespuesta = await mensajeOriginal.reply({ embeds: [embed] });
+      } else {
+        mensajeRespuesta = await channel.send({ embeds: [embed] });
+      }
+
+      let userData = confessionDoc.users.find((u) => u.authorId === userId);
+      if (!userData) {
+        userData = { authorId: userId, confessions: [], answers: [] };
+        confessionDoc.users.push(userData);
+      }
+
+      userData.answers.push({
+        id: newAnswerId,
+        responseTo: id,
+        message: respuesta,
+        date: new Date(),
+        anonymous: esAnonimo,
+        messageId: mensajeRespuesta.id,
+      });
+
+      await confessionDoc.save();
+
+      if ((confessionDoc.dmStatus ?? true) && autorConfesionId) {
+        try {
+          const targetUser = await interaction.client.users.fetch(
+            autorConfesionId
+          );
+          const dm = await targetUser.createDM();
+
+          const messageUrl = confesionOriginal.messageId
+            ? `https://discord.com/channels/${guildId}/${confessionDoc.channel}/${confesionOriginal.messageId}`
+            : null;
+
+          const dmEmbed = new EmbedBuilder()
+            .setTitle(
+              `📬 Alguien ha respondido a tu confesión (#${newAnswerId})`
+            )
+            .setDescription(respuesta)
+            .setColor(0x90ee90)
+            .setTimestamp();
+
+          if (esAnonimo) {
+            dmEmbed.setFooter({
+              text: "Respuesta anónima",
+            });
+          } else {
+            dmEmbed.setFooter({
+              text: `Respondido por ${interaction.user.tag}`,
+            });
+            dmEmbed.setAuthor({
+              name: interaction.user.username,
+              iconURL: interaction.user.displayAvatarURL(),
+            });
+          }
+
+          const components = [];
+
+          if (messageUrl) {
+            const viewButton = new ActionRowBuilder().addComponents(
+              new ButtonBuilder()
+                .setLabel("Ver confesión")
+                .setStyle(ButtonStyle.Link)
+                .setURL(messageUrl)
+            );
+
+            components.push(viewButton);
+          }
+
+          await dm.send({
+            embeds: [dmEmbed],
+            components: components,
+          });
+        } catch (err) { }
+      }
+
+      return interaction.reply({
+        content: "Tu respuesta ha sido enviada correctamente.",
+        flags: MessageFlags.Ephemeral,
+      });
     }
 
     if (!interaction.isChatInputCommand()) return;
     const command = client.commands.get(interaction.commandName);
     if (!command) return;
 
-    try {
-      await command.execute(interaction, client);
-    } catch (error) {
-      console.log(error);
-      if (interaction.replied || interaction.deferred) {
-        await interaction.followUp({
-          content: "¡Hubo un error al ejecutar este comando! Por favor, repórtalo al desarrollador.",
-          ephemeral: true,
-        });
-      } else {
-        await interaction.reply({
-          content: "¡Hubo un error al ejecutar este comando! Por favor, repórtalo al desarrollador.",
-          ephemeral: true,
-        });
-      }
+    if (
+      !interaction.replied &&
+      !interaction.deferred &&
+      command.defer !== false
+    ) {
+      await interaction.deferReply();
     }
 
+    const db = await loadRequiredData(
+      interaction,
+      command.databaseRequired || []
+    );
+
+    try {
+      await command.execute(interaction, client, { db });
+    } catch (error) {
+      console.log(error);
+      if (interaction.deferred) {
+        return errorEmbed(
+          interaction,
+          client,
+          "Ha ocurrido un error al ejecutar el comando.",
+          MessageType.EditReply
+        );
+      } else if (interaction.replied) {
+        return errorEmbed(
+          interaction,
+          client,
+          "Ha ocurrido un error al ejecutar el comando.",
+          MessageType.FollowUp
+        );
+      } else {
+        return errorEmbed(
+          interaction,
+          client,
+          "Ha ocurrido un error al ejecutar el comando.",
+          MessageType.Reply
+        );
+      }
+    }
 
   },
 };

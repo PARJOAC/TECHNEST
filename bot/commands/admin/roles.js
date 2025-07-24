@@ -2,11 +2,13 @@ const { userCanUseCommand } = require("../../functions/checkAdminCommand");
 const { blueEmbed } = require("../../functions/interactionEmbed.js");
 const { Category } = require("../../../enums/category");
 const { MessageType } = require("../../../enums/messageType");
+const { buildCommand } = require("../../functions/createSlashCommand");
+const { createButton } = require("../../functions/createButton");
 
 module.exports = {
   data: buildCommand("roles", "Enviar mensaje de autoroles."),
   category: Category.Assist,
-  commandId: "1296240894306943039",
+  commandId: "1295292737184333864",
   async execute(interaction, client) {
     const check = await userCanUseCommand(interaction, client);
     if (!check.canDoCommand) return;
@@ -47,7 +49,7 @@ module.exports = {
     const actionRowEstado = await createButton(buttonsEstado);
 
     await blueEmbed(interaction, client, {
-      type: MessageType.EditReply,
+      type: MessageType.ChannelSend,
       title: "¿Cómo estudias?",
       description: "Reacciona al botón correspondiente para obtener o eliminar los roles pertinentes. ¡Buen curso!\n\n**🏠 Presencial\n👀 SemiPresencial\n💻 Online**",
       withResponse: false,
@@ -125,7 +127,7 @@ module.exports = {
     });
 
     await blueEmbed(interaction, client, {
-      type: MessageType.FollowUp,
+      type: MessageType.EditReply,
       title: "¡Listo!",
       description: "Se han enviado correctamente los botones de autoroles.",
       withResponse: true,

@@ -1,4 +1,5 @@
 const {
+  ActivityType,
   EmbedBuilder,
   Events,
   AttachmentBuilder,
@@ -18,6 +19,11 @@ module.exports = {
   name: Events.ClientReady,
   once: true,
   async execute(client) {
+
+    console.log(`Sesión iniciada en el bot ${client.user.tag}!`);
+    client.user.setActivity(`🔥🔥🔥🔥`, {
+      type: ActivityType.Custom,
+    });
 
     let telegram = await telegramClientInit();
 

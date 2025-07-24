@@ -13,7 +13,8 @@ module.exports = {
   commandId: "1296240894306943039",
   async execute(interaction, client) {
     const commandFolders = fs
-      .readdirSync(path.join(__dirname, "..", "..", "commands"));
+      .readdirSync(path.join(__dirname, "..", "..", "commands"))
+      .filter((folder) => folder.admin !== true);
 
     const commandCategories = {};
 
@@ -55,9 +56,9 @@ module.exports = {
 
     const categoryEmojiMap = {
       admin: "⚙️",
-      assist: "❓",
-      games: "🟢",
-      users: "👤",
+      asistencia: "❓",
+      general: "🟢",
+      usuarios: "👤",
     };
 
     const categoryEmbeds = orderedCategories
@@ -82,7 +83,7 @@ module.exports = {
 
     const categoryButtons = orderedCategories.map((category, index) => ({
       id: `category_${index}`,
-      label: `${categoryEmojiMap[category]} ${category || "More"}`,
+      label: `${categoryEmojiMap[category]} ${category.charAt(0).toUpperCase() + category.slice(1) || "More"}`,
       style: "primary",
     }));
 
