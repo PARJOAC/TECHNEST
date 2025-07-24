@@ -1,5 +1,5 @@
 const { Events } = require('discord.js');
-const handlerAntiSpam = require('../utils/handlerAntiSpam');
+const antiSpam = require('../functions/antiSpam');
 const spamMap = new Map();
 
 let cleaningStarted = false;
@@ -8,7 +8,7 @@ module.exports = {
     name: Events.MessageCreate,
     once: false,
     async execute(message, client) {
-        handlerAntiSpam(message, spamMap);
+        antiSpam(message, spamMap);
 
         if (!cleaningStarted) {
             cleaningStarted = true;

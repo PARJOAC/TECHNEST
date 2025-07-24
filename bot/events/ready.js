@@ -25,21 +25,18 @@ module.exports = {
       try {
         const mensaje = await busquedaMensaje(telegram);
 
-        if (!mensaje) {
-          return; // No hay mensaje nuevo
-        }
+        if (!mensaje) return;
 
         const lastOfert = await Ofertas.findOne({}); // Busca la última oferta guardada
         const lastOfertId = mensaje.id;
 
-        if (lastOfert && lastOfert.oferta == lastOfertId) return; // Ya se procesó este mensaje
-
+        if (lastOfert && lastOfert.idOferta == lastOfertId) return; // Ya se procesó este mensaje
 
         if (lastOfert) {
-          lastOfert.oferta = lastOfertId; // Actualiza el último ID procesado
+          lastOfert.idOferta = lastOfertId; // Actualiza el último ID procesado
           await lastOfert.save();
         } else {
-          await new Ofertas({ oferta: lastOfertId }).save(); // Crea nueva oferta si no existe
+          await new Ofertas({ idOferta: lastOfertId }).save(); // Crea nueva oferta si no existe
         }
 
         const timestamp = mensaje.date * 1000;
@@ -115,12 +112,12 @@ module.exports = {
 
         if (!lastHuelga) {
           lastHuelga = new Huelgas({
-            titulo_ult: "",
+            tituloUltimaHuelga: "",
           });
           await lastHuelga.save();
         }
 
-        if (lastHuelga.titulo_ult !== titulo) {
+        if (lastHuelga.tituloUltimaHuelga !== titulo) {
           const trimmedUrl = imagen.split(".jpg")[0] + ".jpg";
 
           const channel = client.channels.cache.get(process.env.HUELGA_CANAL);
@@ -139,10 +136,6 @@ module.exports = {
                   url: "https://www.sindicatodeestudiantes.net",
                 })
                 .setTimestamp()
-                .setFooter({
-                  text: "Bot realizado por ACPARJO",
-                  iconURL: client.user.displayAvatarURL(),
-                })
                 .setThumbnail(
                   `https://www.sindicatodeestudiantes.net//favicon-32x32.png`
                 )
@@ -151,13 +144,13 @@ module.exports = {
             ],
           });
 
-          lastHuelga.titulo_ult = titulo;
+          lastHuelga.tituloUltimaHuelga = titulo;
           await lastHuelga.save();
         }
       } catch (error) {
         console.error("Error en la función de intervalo:", error);
       }
     }, 10000);
-    
+
   },
 };

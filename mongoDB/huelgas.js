@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
 
-const Huelga = new mongoose.Schema({
-  titulo_ult: { type: String }
+const HuelgaSchema = new mongoose.Schema({
+  tituloUltimaHuelga: { type: String }
 });
 
-module.exports = mongoose.model('Huelga', Huelga);
+const Huelgas = mongoose.model('Huelga', HuelgaSchema);
+module.exports = Huelgas;

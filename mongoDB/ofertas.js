@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
 
-const Oferta = new mongoose.Schema({
-  oferta: { type: Number }
+const OfertaSchema = new mongoose.Schema({
+  idOferta: { type: Number }
 });
 
-module.exports = mongoose.model('Oferta', Oferta);
+const Ofertas = mongoose.model('Oferta', OfertaSchema);
+module.exports = Ofertas;
