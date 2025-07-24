@@ -14,6 +14,7 @@ const axios = require("axios");
 const cheerio = require("cheerio");
 const moment = require("moment-timezone");
 const fs = require("fs");
+const config = require("../../initMain/config.json");
 
 module.exports = {
   name: Events.ClientReady,
@@ -51,7 +52,7 @@ module.exports = {
         const fecha = timestampAjustado.format("DD/MM/YYYY");
         const hora = timestampAjustado.format("HH:mm");
 
-        const channel = client.channels.cache.get(process.env.OFERTAS_CANAL);
+        const channel = client.channels.cache.get(config.ofertasCanal);
 
         if (mensaje.media && mensaje.media.photo) {
           try {
@@ -126,7 +127,7 @@ module.exports = {
         if (lastHuelga.tituloUltimaHuelga !== titulo) {
           const trimmedUrl = imagen.split(".jpg")[0] + ".jpg";
 
-          const channel = client.channels.cache.get(process.env.HUELGA_CANAL);
+          const channel = client.channels.cache.get(config.huelgasCanal);
           await channel.send({
             embeds: [
               new EmbedBuilder()
