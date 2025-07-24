@@ -85,7 +85,7 @@ module.exports = {
     }
 
     const embed = new EmbedBuilder()
-      .setTitle(`📢 New Confession (#${newId})`)
+      .setTitle(`📢 Nueva confesión (#${newId})`)
       .setDescription(message)
       .setTimestamp()
       .setColor(parseInt(config.greenColor, 16))
