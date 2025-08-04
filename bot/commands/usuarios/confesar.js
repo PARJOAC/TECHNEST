@@ -13,13 +13,13 @@ module.exports = {
   data: buildCommand("confess", "Enviar una confesión.", {
     options: [
       {
-        name: "confession",
+        name: "confesar",
         type: CommandOptionType.String,
         description: "Escribe tu confesión.",
         required: CommandOptionRequired.Required,
       },
       {
-        name: "anonymous",
+        name: "anonimo",
         type: CommandOptionType.Boolean,
         description: "¿Quieres que sea anónimo? (predeterminado: si)",
         required: CommandOptionRequired.NotRequired,

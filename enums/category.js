@@ -3,6 +3,7 @@ const Category = {
   Assist: "asistencia",
   General: "general",
   Users: "usuarios",
+  Moderation: "moderacion",
 };
 
 module.exports = { Category };

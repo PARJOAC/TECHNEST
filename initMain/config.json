@@ -1,12 +1,15 @@
 {
-  "botId": "1290693161487699989",
+  "botId": "1193665785458077858",
   "ownerId": "714376484139040809",
-  "guildId": "1107569366045831258",
+  "guildId": "1316164708675616849",
 
-  "ofertasCanal": "1267561464143810610",
-  "huelgasCanal": "1292851041875792012",
-  "bienvenidaCanal": "1248352407436525639",
-  "antiSpamCanal": "1280878268119253106",
+  "ofertasCanal": "1328047190819733585",
+  "huelgasCanal": "1328047190819733585",
+  "bienvenidaCanal": "1328047190819733585",
+  "antiSpamCanal": "1328047190819733585",
+
+  "logsModCanal": "1328047190819733585",
+  "logsEventosCanal": "1328047190819733585",
 
   "redColor": "ec7063",
   "greenColor": "82e0aa",
