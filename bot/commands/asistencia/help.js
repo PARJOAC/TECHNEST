@@ -50,7 +50,6 @@ module.exports = {
     const orderedCategories = [
       Category.Admin,
       Category.Assist,
-      Category.General,
       Category.Users,
       Category.Moderation,
     ];
@@ -58,7 +57,6 @@ module.exports = {
     const categoryEmojiMap = {
       admin: "⚙️",
       asistencia: "❓",
-      general: "🟢",
       usuarios: "👤",
       moderacion: "🔨",
     };
