@@ -13,7 +13,7 @@ module.exports = {
   data: buildCommand("confesar", "Enviar una confesión.", {
     options: [
       {
-        name: "confesar",
+        name: "confesion",
         type: CommandOptionType.String,
         description: "Escribe tu confesión.",
         required: CommandOptionRequired.Required,
@@ -36,7 +36,7 @@ module.exports = {
 
     const confessionData = db.confessionData;
     const userId = interaction.user.id;
-    const message = interaction.options.getString("confession");
+    const message = interaction.options.getString("confesion");
     const anonymous = interaction.options.getBoolean("anonymous") ?? true;
 
     if (!confessionData?.status || !confessionData.channel)
