@@ -10,7 +10,7 @@ const { CommandOptionType, CommandOptionRequired } = require("../../../enums/bui
 const { MessageType } = require("../../../enums/messageType");
 
 module.exports = {
-  data: buildCommand("confess", "Enviar una confesión.", {
+  data: buildCommand("confesar", "Enviar una confesión.", {
     options: [
       {
         name: "confesar",
