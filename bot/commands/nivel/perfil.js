@@ -15,16 +15,12 @@ module.exports = {
                 .setRequired(false)
         ),
 
-    defer: false,
     async execute(interaction) {
-        await interaction.deferReply({ ephemeral: true }); // respuesta pública; si la quieres privada, { ephemeral: true }
         // Cargar config de la guild
         const cfg = await Guild.findOne({ guildId: interaction.guild.id }).catch(() => null);
         if (cfg?.levelEnabled === false) {
             return interaction.editReply({ content: "❌ El sistema de niveles está desactivado en este servidor.", ephemeral: true });
         }
-
-
 
         const usuario = interaction.options.getUser("usuario") || interaction.user;
 
@@ -33,7 +29,7 @@ module.exports = {
 
         if (!nivelDoc) {
             // Nada que mostrar
-            return interaction.editReply({ content: "ℹ️ Ese usuario aún no tiene datos de nivel en este servidor." });
+            return interaction.editReply({ content: "Ese usuario aún no tiene datos de nivel en este servidor." });
         }
 
         const miembro = await interaction.guild.members.fetch(usuario.id).catch(() => null);
