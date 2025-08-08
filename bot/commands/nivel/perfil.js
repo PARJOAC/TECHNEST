@@ -1,8 +1,9 @@
 // commands/perfil.js
 const { SlashCommandBuilder, AttachmentBuilder, EmbedBuilder } = require("discord.js");
 const { createCanvas, loadImage } = require("canvas");
-const { obtenerNivel, xpRequeridaPara } = require("../../functions/leveling");
 const Guild = require("../../../mongoDB/Guild");
+const Level = require("../../../mongoDB/Level"); // ← usamos el modelo directo para NO crear si no existe
+const { xpRequeridaPara } = require("../../functions/leveling"); // solo la fórmula
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -14,16 +15,28 @@ module.exports = {
                 .setRequired(false)
         ),
 
+    defer: false,
     async execute(interaction) {
-
-        const cfg = await Guild.findOne({ guildId: interaction.guild.id });
+        await interaction.deferReply({ ephemeral: true }); // respuesta pública; si la quieres privada, { ephemeral: true }
+        // Cargar config de la guild
+        const cfg = await Guild.findOne({ guildId: interaction.guild.id }).catch(() => null);
         if (cfg?.levelEnabled === false) {
             return interaction.editReply({ content: "❌ El sistema de niveles está desactivado en este servidor.", ephemeral: true });
         }
 
+
+
         const usuario = interaction.options.getUser("usuario") || interaction.user;
+
+        // NO crear si no existe:
+        const nivelDoc = await Level.findOne({ guildId: interaction.guild.id, userId: usuario.id });
+
+        if (!nivelDoc) {
+            // Nada que mostrar
+            return interaction.editReply({ content: "ℹ️ Ese usuario aún no tiene datos de nivel en este servidor." });
+        }
+
         const miembro = await interaction.guild.members.fetch(usuario.id).catch(() => null);
-        const nivelDoc = await obtenerNivel(interaction.guild.id, usuario.id);
 
         const buffer = await construirTarjeta(usuario, interaction.guild, nivelDoc);
 
@@ -57,9 +70,9 @@ async function construirTarjeta(user, guild, levelDoc) {
     ctx.fillStyle = "#222429";
     roundRect(ctx, 20, 20, w - 40, h - 40, 24, true);
 
-    // Avatar
+    // Avatar (seguro)
     const avatarURL = user.displayAvatarURL({ extension: "png", size: 256 });
-    const avatarImg = await loadImage(avatarURL);
+    const avatarImg = await safeLoadImage(avatarURL);
     const avX = 40, avY = 50, avS = 200;
 
     ctx.save();
@@ -77,11 +90,11 @@ async function construirTarjeta(user, guild, levelDoc) {
     ctx.fillText(`Servidor: ${guild.name}`, 270, 120);
 
     // Datos de progreso
-    const level = levelDoc.level;
-    const xp = levelDoc.xp;
+    const level = levelDoc.level || 0;
+    const xp = levelDoc.xp || 0;
     const reqNext = xpRequeridaPara(level + 1);
     const reqCurr = xpRequeridaPara(level);
-    const xpDentro = xp - reqCurr;
+    const xpDentro = Math.max(0, xp - reqCurr);
     const xpNecesaria = Math.max(1, reqNext - reqCurr);
     const pct = Math.max(0, Math.min(1, xpDentro / xpNecesaria));
 
@@ -122,4 +135,12 @@ function circleClip(ctx, cx, cy, r) {
     ctx.arc(cx, cy, r, 0, Math.PI * 2);
     ctx.closePath();
     ctx.clip();
+}
+
+async function safeLoadImage(url) {
+    try {
+        return await loadImage(url);
+    } catch {
+        return await loadImage("https://cdn.discordapp.com/embed/avatars/0.png");
+    }
 }

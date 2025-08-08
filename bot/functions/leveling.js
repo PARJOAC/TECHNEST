@@ -11,7 +11,8 @@ const XP_MAX = 25;             // XP máxima por mensaje válido
  * Ajusta esta fórmula a tu gusto.
  */
 function xpRequeridaPara(nivel) {
-    return 100 * nivel * nivel + 100 * nivel; // ejemplo suave
+    if (nivel === 0) return 50; // nivel 0 → 50 XP
+    return 100 * nivel;         // del nivel 1 en adelante, 100 · nivel
 }
 
 /** Convierte XP total acumulada → nivel entero */
