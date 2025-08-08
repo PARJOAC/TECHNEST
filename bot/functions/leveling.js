@@ -2,7 +2,7 @@
 const Level = require("../../mongoDB/Level");
 
 // Configuración básica del sistema
-const COOLDOWN_MS = 15 * 1000; // 1 minuto entre mensajes que dan XP
+const COOLDOWN_MS = 6 * 1000; // 1 minuto entre mensajes que dan XP
 const XP_MIN = 15;             // XP mínima por mensaje válido
 const XP_MAX = 25;             // XP máxima por mensaje válido
 
@@ -11,7 +11,7 @@ const XP_MAX = 25;             // XP máxima por mensaje válido
  * Ajusta esta fórmula a tu gusto.
  */
 function xpRequeridaPara(nivel) {
-    return 100 * nivel; // ejemplo suave
+    return 100 * nivel * nivel + 100 * nivel; // ejemplo suave
 }
 
 /** Convierte XP total acumulada → nivel entero */

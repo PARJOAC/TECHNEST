@@ -9,7 +9,7 @@ const LevelSchema = new Schema({
     guildId: { type: String, index: true, required: true },
     userId: { type: String, index: true, required: true },
     xp: { type: Number, default: 0, min: 0 },
-    level: { type: Number, default: 1, min: 1 },
+    level: { type: Number, default: 0, min: 0 },
     lastMsgAt: { type: Date, default: null }, // para cooldown anti-spam
 }, { timestamps: true });
 
