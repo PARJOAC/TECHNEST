@@ -2,17 +2,20 @@
 const Level = require("../../mongoDB/Level");
 
 // Configuración básica del sistema
-const COOLDOWN_MS = 6 * 1000; // 1 minuto entre mensajes que dan XP
-const XP_MIN = 15;             // XP mínima por mensaje válido
-const XP_MAX = 25;             // XP máxima por mensaje válido
+const COOLDOWN_MS = 6 * 1000; // 6 segundos entre mensajes que dan XP
+const XP_MIN = 15;            // XP mínima por mensaje válido
+const XP_MAX = 25;            // XP máxima por mensaje válido
 
 /**
  * XP total requerida para alcanzar el nivel n (curva de progresión).
- * Ajusta esta fórmula a tu gusto.
+ * Nivel 0: 50 total
+ * Nivel 1: 100 total
+ * Nivel 2: 200 total
+ * Nivel 3: 300 total
+ * ...
  */
 function xpRequeridaPara(nivel) {
-    if (nivel === 0) return 50; // nivel 0 → 50 XP
-    return 100 * nivel;         // del nivel 1 en adelante, 100 · nivel
+    return nivel === 0 ? 50 : 100 * nivel;
 }
 
 /** Convierte XP total acumulada → nivel entero */
@@ -61,7 +64,10 @@ async function obtenerNivel(guildId, userId) {
 
 /** Top por XP de un servidor */
 async function obtenerTop(guildId, limite = 10) {
-    return Level.find({ guildId }).sort({ xp: -1, updatedAt: 1 }).limit(limite).lean();
+    return Level.find({ guildId })
+        .sort({ xp: -1, updatedAt: 1 })
+        .limit(limite)
+        .lean();
 }
 
 module.exports = {
