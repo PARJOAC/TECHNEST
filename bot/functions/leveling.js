@@ -7,15 +7,23 @@ const XP_MIN = 2;            // XP mínima por mensaje válido
 const XP_MAX = 7;            // XP máxima por mensaje válido
 
 /**
- * XP total requerida para alcanzar el nivel n (curva de progresión).
- * Nivel 0: 50 total
- * Nivel 1: 100 total
- * Nivel 2: 200 total
- * Nivel 3: 300 total
- * ...
+ * XP total requerida para ALCANZAR el nivel `nivel` (umbral acumulado).
+ * Modelo: cada nivel pide un poco más que el anterior.
+ *
+ * base: XP para subir de 0→1
+ * inc:  aumento adicional por cada nivel siguiente
+ *
+ * Ejemplo con base=50 e inc=50:
+ * 0→1: 50   | total nivel 1 = 50
+ * 1→2: 100  | total nivel 2 = 150
+ * 2→3: 150  | total nivel 3 = 300
+ * 3→4: 200  | total nivel 4 = 500
  */
 function xpRequeridaPara(nivel) {
-    return nivel === 0 ? 50 : 100 * nivel;
+    if (nivel <= 0) return 0; // nivel 0 empieza en 0 XP
+    const base = 50; // XP para 0→1
+    const inc  = 100; // “extra” por cada nivel adicional
+    return base * nivel + (inc * (nivel - 1) * nivel) / 2;
 }
 
 /** Convierte XP total acumulada → nivel entero */
